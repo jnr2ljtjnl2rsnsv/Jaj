@@ -1,152 +1,121 @@
-<!DOCTYPE html><html lang="ja">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Task & Reward Manager</title>
+<title>仕事</title>
 <style>
-  body{
-    margin:0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    background:#0b0b0b;
-    color:#e6e6e6;
-  }
-  header{
-    padding:16px;
-    text-align:center;
-    font-size:1.3rem;
-    font-weight:600;
-    background:#111;
-    border-bottom:1px solid #222;
-  }
-  main{
-    max-width:900px;
-    margin:auto;
-    padding:16px;
-  }
-  .form{
-    display:grid;
-    gap:10px;
-    margin-bottom:20px;
-    background:#111;
-    padding:16px;
-    border-radius:12px;
-  }
-  input, button{
-    background:#1a1a1a;
-    color:#e6e6e6;
-    border:1px solid #333;
-    border-radius:8px;
-    padding:10px;
-    font-size:0.95rem;
-  }
-  button{
-    cursor:pointer;
-    background:#222;
-  }
-  button:hover{background:#2c2c2c}table{ width:100%; border-collapse:collapse; background:#111; border-radius:12px; overflow:hidden; } th, td{ padding:10px; border-bottom:1px solid #222; text-align:left; font-size:0.9rem; } th{background:#151515} tr.done{opacity:0.5;text-decoration:line-through}
-
-.status-btn{ padding:6px 10px; font-size:0.8rem; } .delete-btn{ background:#3a1a1a; border-color:#552222; } </style>
-
+body{margin:0;font-family:system-ui;background:#0b0b0b;color:#e6e6e6}
+header{padding:16px;text-align:center;font-size:1.3rem;font-weight:600;background:#111;border-bottom:1px solid #222}
+main{max-width:900px;margin:auto;padding:16px}
+.form{display:grid;gap:10px;margin-bottom:16px;background:#111;padding:16px;border-radius:12px}
+input,button{background:#1a1a1a;color:#e6e6e6;border:1px solid #333;border-radius:8px;padding:10px}
+button{cursor:pointer}
+table{width:100%;border-collapse:collapse;background:#111;border-radius:12px;overflow:hidden}
+th,td{padding:10px;border-bottom:1px solid #222}
+th{background:#151515}
+tr.done{opacity:.5;text-decoration:line-through}
+</style>
 </head>
+
 <body>
-<header>仕事・報酬・日時 管理（仕事用ガチ管理）</header>
+<header>仕事・報酬・日時 管理</header>
+
 <main>
-  <div class="form">
-    <input id="task" placeholder="仕事内容">
-    <input id="reward" placeholder="報酬（数値推奨：例 3000）">
-    <input id="datetime" type="datetime-local">
-    <button onclick="addTask()">追加</button>
-    <button onclick="exportCSV()">CSV出力</button>
-    <button onclick="exportDoneCSV()">完了のみCSV</button>
-    <button onclick="sendToSheet()">Googleスプレッドシート送信</button>
-  </div>  <div style="margin-bottom:12px;font-size:0.9rem">
-    合計件数: <span id="count">0</span> ｜ 完了: <span id="doneCount">0</span> ｜ 報酬合計: <span id="total">0</span>
-  </div>  <table>
-    <thead>
-      <tr>
-        <th>仕事</th>
-        <th>報酬</th>
-        <th>日時</th>
-        <th>状態</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody id="list"></tbody>
-  </table>
-</main><script>
-let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+<div class="form">
+  <input id="task" placeholder="仕事内容">
+  <input id="reward" placeholder="報酬（数値）">
+  <input id="datetime" type="datetime-local">
+  <button onclick="addTask()">追加（最大5件）</button>
+  <button onclick="exportCSV()">CSV出力</button>
+</div>
+
+<div style="margin-bottom:10px">
+  件数:<span id="count">0</span>　
+  完了:<span id="done">0</span>　
+  合計:<span id="total">0</span>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>仕事</th><th>報酬</th><th>日時</th><th>状態</th><th>操作</th>
+</tr>
+</thead>
+<tbody id="list"></tbody>
+</table>
+</main>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem('tasks')||'[]');
 const list = document.getElementById('list');
 
-function save(){ localStorage.setItem('tasks', JSON.stringify(tasks)); }
+function save(){
+  localStorage.setItem('tasks',JSON.stringify(tasks));
+}
 
 function render(){
-  list.innerHTML = '';
-  let total = 0;
-  let doneCount = 0;
+  list.innerHTML='';
+  let total=0,done=0;
 
   tasks.forEach((t,i)=>{
-    if(!isNaN(Number(t.reward))) total += Number(t.reward);
-    if(t.done) doneCount++;
+    if(!isNaN(t.reward)) total+=Number(t.reward);
+    if(t.done) done++;
 
-    const tr = document.createElement('tr');
+    const tr=document.createElement('tr');
     if(t.done) tr.classList.add('done');
-    tr.innerHTML = `
+    tr.innerHTML=`
       <td>${t.task}</td>
       <td>${t.reward}</td>
       <td>${t.datetime}</td>
-      <td>${t.done ? '完了' : '未完了'}</td>
+      <td>${t.done?'完了':'未完了'}</td>
       <td>
-        <button class="status-btn" onclick="toggle(${i})">切替</button>
-        <button class="status-btn delete-btn" onclick="del(${i})">削除</button>
-      </td>
-    `;
+        <button onclick="toggle(${i})">切替</button>
+        <button onclick="del(${i})">削除</button>
+      </td>`;
     list.appendChild(tr);
   });
 
-  document.getElementById('count').textContent = tasks.length;
-  document.getElementById('doneCount').textContent = doneCount;
-  document.getElementById('total').textContent = total;
-}
-</td>
-      <td>${t.reward}</td>
-      <td>${t.datetime}</td>
-      <td>${t.done ? '完了' : '未完了'}</td>
-      <td>
-        <button class="status-btn" onclick="toggle(${i})">切替</button>
-        <button class="status-btn delete-btn" onclick="del(${i})">削除</button>
-      </td>
-    `;
-    list.appendChild(tr);
-  });
+  count.textContent=tasks.length;
+  doneCount?.textContent;
+  document.getElementById('done').textContent=done;
+  document.getElementById('total').textContent=total;
 }
 
 function addTask(){
-  const task = document.getElementById('task').value.trim();
-  const reward = document.getElementById('reward').value.trim();
-  const datetime = document.getElementById('datetime').value;
-  if(!task || !datetime) return;
-  tasks.push({task, reward, datetime, done:false});
-  save();
-  render();
-
-// ===== Google Sheets 送信 =====
-// ▼▼ ここに Apps Script の WebアプリURLを入れる ▼▼
-const SHEET_ENDPOINT = 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
-
-function sendToSheet(){
-  if(SHEET_ENDPOINT.includes('PASTE')){
-    alert('Google Apps Script のURLを設定してください');
+  if(tasks.length>=5){
+    alert('最大5件までです');
     return;
   }
+  const task=taskInput.value.trim();
+  const reward=rewardInput.value.trim();
+  const datetime=datetimeInput.value;
+  if(!task||!datetime) return;
 
-  fetch(SHEET_ENDPOINT,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ tasks })
-  })
-  .then(r=>r.text())
-  .then(()=>alert('スプレッドシートに送信しました'))
-  .catch(()=>alert('送信失敗'));
+  tasks.push({task,reward,datetime,done:false});
+  save(); render();
 }
-</script></body>
+
+function toggle(i){tasks[i].done=!tasks[i].done;save();render();}
+function del(i){tasks.splice(i,1);save();render();}
+
+function exportCSV(){
+  let csv='仕事,報酬,日時,状態\n';
+  tasks.forEach(t=>{
+    csv+=`"${t.task}","${t.reward}","${t.datetime}","${t.done?'完了':'未完了'}"\n`;
+  });
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='tasks.csv';
+  a.click();
+}
+
+const taskInput=document.getElementById('task');
+const rewardInput=document.getElementById('reward');
+const datetimeInput=document.getElementById('datetime');
+
+render();
+</script>
+</body>
 </html>
