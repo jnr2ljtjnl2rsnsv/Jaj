@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>役職分担表</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<h2>役職分担</h2>
+<table border="1" id="table"></table>
+
+<script>
+const supabase = supabaseJs.createClient(
+  "SUPABASE_URL",
+  "ANON_KEY"
+);
+
+async function load() {
+  const { data } = await supabase
+    .from("roles")
+    .select("*")
+    .order("id");
+  const table = document.getElementById("table");
+  table.innerHTML = "<tr><th>役割</th><th>人</th></tr>";
+  data.forEach(r => {
+    table.innerHTML += `
+      <tr>
+        <td>${r.role}</td>
+        <td contenteditable
+            onblur="save(${r.id}, this.innerText)">
+            ${r.person ?? ""}
+        </td>
+      </tr>`;
+  });
+}
+
+async function save(id, person) {
+  await supabase
+    .from("roles")
+    .update({ person })
+    .eq("id", id);
+}
+
+load();
+</script>
+
+</body>
+</html>
