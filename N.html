@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>役職表</title>
+<style>
+  :root{
+    --bg:#050509;
+    --card:#0d0d14;
+    --accent:#00e5ff;
+    --accent2:#7c7cff;
+    --text:#f2f2f7;
+    --sub:#9aa0aa;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background:radial-gradient(1200px 600px at top,#0b0b16,#050509 60%);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:20px;
+  }
+  .container{
+    width:100%;
+    max-width:900px;
+  }
+  header{
+    margin-bottom:20px;
+  }
+  h1{
+    font-size:1.8rem;
+    margin:0 0 6px;
+    letter-spacing:0.05em;
+  }
+  .desc{
+    color:var(--sub);
+    font-size:0.9rem;
+  }
+  .roles{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+    gap:16px;
+    margin-top:20px;
+  }
+  .role{
+    background:linear-gradient(180deg,#0f0f18,#0a0a12);
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 20px 40px rgba(0,0,0,.6);
+    position:relative;
+    overflow:hidden;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .role:hover{
+    transform:translateY(-4px);
+    box-shadow:0 0 0 1px rgba(0,229,255,.25), 0 30px 60px rgba(0,0,0,.8);
+  }
+  .role::after{
+    content:"";
+    position:absolute;
+    inset:auto -40% -60% auto;
+    width:260px;
+    height:260px;
+    background:radial-gradient(circle at center,var(--accent),transparent 65%);
+    opacity:.18;
+    pointer-events:none;
+  }
+  .role h2{
+    margin:0 0 8px;
+    font-size:1.2rem;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .badge{
+    font-size:0.65rem;
+    padding:4px 10px;
+    border-radius:999px;
+    background:linear-gradient(90deg,rgba(0,229,255,.25),rgba(124,124,255,.25));
+    color:#dffbff;
+    letter-spacing:.08em;
+  }
+  .role p{
+    margin:0 0 10px;
+    font-size:0.9rem;
+    color:var(--sub);
+    line-height:1.6;
+  }
+  ul{
+    margin:0;
+    padding-left:18px;
+    font-size:0.85rem;
+  }
+  li{margin:4px 0}
+  footer{
+    margin-top:30px;
+    text-align:center;
+    font-size:0.75rem;
+    color:#777;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>役職表</h1>
+      <div class="desc">UI重視・閲覧専用（編集不可）</div>
+    </header><section class="roles">
+  <div class="role">
+    <h2>メンバー <span class="badge">USER</span></h2>
+    <p>通常参加者。</p>
+    <ul>
+      <li>自由参加</li>
+      <li>ルール遵守</li>
+    </ul>
+  </div>
+
+  <div class="role">
+    <h2>サポーター <span class="badge">SUPPORT</span></h2>
+    <p>初心者や質問対応を担当。</p>
+    <ul>
+      <li>質問対応</li>
+      <li>雰囲気維持</li>
+      <li>案内補助</li>
+    </ul>
+  </div>
+
+  <div class="role">
+    <h2>観覧者 <span class="badge">VIEW</span></h2>
+    <p>閲覧のみ可能な参加者。</p>
+    <ul>
+      <li>発言制限あり</li>
+      <li>参加状況の確認</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  UI Role Table / Dark Style
+</footer>
+
+  </div>
+</body>
+</html>
