@@ -1,19 +1,44 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<title>役職分担表</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>役割分担表</title>
+
+<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body {
+  font-family: system-ui, sans-serif;
+  background: #111;
+  color: #fff;
+  padding: 20px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  border: 1px solid #444;
+  padding: 10px;
+}
+td[contenteditable] {
+  background: #222;
+}
+</style>
 </head>
+
 <body>
 
-<h2>役職分担</h2>
-<table border="1" id="table"></table>
+<h2>役割分担</h2>
+
+<table id="table"></table>
 
 <script>
 const supabase = supabaseJs.createClient(
-  "SUPABASE_URL",
-  "ANON_KEY"
+  "https://bgmoxssuwgiyayykohrk.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnbW94c3N1d2dpeWF5eWtvaHJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4OTU1ODAsImV4cCI6MjA4MTQ3MTU4MH0.zXyfwYe2iN_qoqbXm5Jg3avUSzBKnlrZFtCqeTSQo30"
 );
 
 async function load() {
@@ -21,24 +46,27 @@ async function load() {
     .from("roles")
     .select("*")
     .order("id");
+
   const table = document.getElementById("table");
   table.innerHTML = "<tr><th>役割</th><th>人</th></tr>";
+
   data.forEach(r => {
     table.innerHTML += `
       <tr>
-        <td>${r.role}</td>
+        <td>${r.役割}</td>
         <td contenteditable
             onblur="save(${r.id}, this.innerText)">
-            ${r.person ?? ""}
+          ${r.人 ?? ""}
         </td>
-      </tr>`;
+      </tr>
+    `;
   });
 }
 
 async function save(id, person) {
   await supabase
     .from("roles")
-    .update({ person })
+    .update({ 人: person })
     .eq("id", id);
 }
 
