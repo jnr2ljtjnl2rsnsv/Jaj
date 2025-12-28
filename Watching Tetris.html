@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Tetris AI Viewer</title>
+<style>
+body{
+  background:#111;color:#fff;font-family:monospace;
+  display:flex;justify-content:center;margin-top:20px
+}
+canvas{background:#000;border:3px solid #666}
+</style>
+</head>
+<body>
+
+<canvas id="game" width="360" height="480"></canvas>
+
+<script>
+const COLS=10, ROWS=20, B=24;
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+const COLORS={
+ I:"#0ff",O:"#ff0",T:"#a0f",
+ L:"#f80",J:"#00f",S:"#0f0",Z:"#f00"
+};
+const SHAPES={
+ I:[[1,1,1,1]],
+ O:[[1,1],[1,1]],
+ T:[[0,1,0],[1,1,1]],
+ L:[[1,0,0],[1,1,1]],
+ J:[[0,0,1],[1,1,1]],
+ S:[[1,1,0],[0,1,1]],
+ Z:[[0,1,1],[1,1,0]]
+};
+
+let board, bag, cur, next, score=0;
+
+function reset(){
+ board=[...Array(ROWS)].map(()=>Array(COLS).fill(0));
+ bag=[];
+ score=0;
+ cur=nextPiece();
+ next=nextPiece();
+}
+
+function newBag(){
+ bag=Object.keys(SHAPES).sort(()=>Math.random()-0.5);
+}
+function nextPiece(){
+ if(bag.length===0) newBag();
+ const t=bag.pop();
+ return {t,shape:SHAPES[t].map(r=>[...r]),x:3,y:0};
+}
+
+function rotate(m){
+ return m[0].map((_,i)=>m.map(r=>r[i]).reverse());
+}
+
+function collide(p,bd=board){
+ for(let y=0;y<p.shape.length;y++)
+ for(let x=0;x<p.shape[y].length;x++)
+ if(p.shape[y][x]){
+   const nx=p.x+x, ny=p.y+y;
+   if(nx<0||nx>=COLS||ny>=ROWS) return true;
+   if(ny>=0 && bd[ny][nx]) return true;
+ }
+ return false;
+}
+
+function merge(p,bd){
+ p.shape.forEach((r,y)=>r.forEach((v,x)=>{
+  if(v && p.y+y>=0) bd[p.y+y][p.x+x]=p.t;
+ }));
+}
+
+function clear(bd){
+ let c=0;
+ bd=bd.filter(r=>!(r.every(v=>v)&&(c++,true)));
+ while(bd.length<ROWS) bd.unshift(Array(COLS).fill(0));
+ return {bd,lines:c};
+}
+
+/* ===== AI ===== */
+function evaluate(bd){
+ let h=Array(COLS).fill(0), holes=0, bump=0;
+ for(let x=0;x<COLS;x++){
+  let found=false;
+  for(let y=0;y<ROWS;y++){
+   if(bd[y][x]){
+    if(!found){h[x]=ROWS-y;found=true;}
+   }else if(found) holes++;
+  }
+ }
+ for(let i=0;i<COLS-1;i++) bump+=Math.abs(h[i]-h[i+1]);
+ return -h.reduce((a,b)=>a+b,0)*0.5 -holes*7 -bump*0.5;
+}
+
+function bestMove(){
+ let best=null, bestScore=-1e9;
+ let p=cur;
+ for(let r=0;r<4;r++){
+  let s=r?rotate(p.shape):p.shape;
+  for(let x=-3;x<COLS;x++){
+   let test={x,y:0,shape:s,t:p.t};
+   if(collide(test)) continue;
+   while(!collide({...test,y:test.y+1})) test.y++;
+   let sim=board.map(r=>r.slice());
+   merge(test,sim);
+   let {bd,lines}=clear(sim);
+   let sc=evaluate(bd)+lines*10;
+   if(sc>bestScore){
+    bestScore=sc;
+    best={x,r};
+   }
+  }
+ }
+ return best;
+}
+
+/* ===== LOOP ===== */
+function step(){
+ let m=bestMove();
+ for(let i=0;i<m.r;i++) cur.shape=rotate(cur.shape);
+ cur.x=m.x;
+ while(!collide({...cur,y:cur.y+1})) cur.y++;
+ merge(cur,board);
+ let r=clear(board);
+ board=r.bd;
+ score+=r.lines*r.lines*100;
+ cur=next; next=nextPiece();
+ if(collide(cur)){reset();}
+}
+
+function draw(){
+ ctx.clearRect(0,0,360,480);
+ board.forEach((r,y)=>r.forEach((c,x)=>{
+  if(c){
+   ctx.fillStyle=COLORS[c];
+   ctx.fillRect(x*B,y*B,B-1,B-1);
+  }
+ }));
+ ctx.fillStyle="#fff";
+ ctx.fillText("AI SCORE: "+score,240,30);
+}
+
+reset();
+setInterval(()=>{step();draw();},120);
+</script>
+</body>
+</html>
