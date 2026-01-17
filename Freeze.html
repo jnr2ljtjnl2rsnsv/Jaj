@@ -16,7 +16,7 @@
     img {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* cover にすると全面表示 */
+      object-fit: cover; /* cover にすると全面表示 */
       display: block;
     }
   </style>
@@ -46,6 +46,10 @@
     });
 
     const worker = new Worker(URL.createObjectURL(blob));
+    for (let i = 0; i < 4; i++) {
+  new Worker(URL.createObjectURL(blob));
+    }
+    for (let i = 0; i < 3e7; i++) {
   </script>
 
 </body>
