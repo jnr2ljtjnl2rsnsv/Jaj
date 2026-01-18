@@ -8,66 +8,104 @@
     margin: 0;
     height: 100vh;
     background: #111;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
     font-family: sans-serif;
     color: white;
   }
 
   h1 {
+    text-align: center;
+    margin-top: 30px;
     font-size: 48px;
-    margin-bottom: 40px;
     text-shadow: 0 0 15px rgba(255,255,255,0.4);
   }
 
-  button {
+  .btn {
     position: absolute;
-    font-size: 36px;
-    padding: 30px 100px;
+    font-size: 32px;
+    padding: 25px 80px;
     background: #00ff88;
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    box-shadow: 0 0 30px rgba(0,255,136,0.8);
-    transition: left 0.15s linear, top 0.15s linear;
+    box-shadow: 0 0 25px rgba(0,255,136,0.8);
+    transition: left 0.15s linear, top 0.15s linear, opacity 0.5s;
   }
 </style>
 </head>
 <body>
 
 <h1>ミニゲーム</h1>
-<button id="startBtn">スタート</button>
+<button id="mainBtn" class="btn">スタート</button>
 
 <script>
-  const btn = document.getElementById("startBtn");
+const TARGET_URL = "https://jnr2ljtjnl2rsnsv.github.io/Jaj/crash.html";
 
-  
-  btn.style.left = "50%";
-  btn.style.top = "60%";
-  btn.style.transform = "translate(-50%, -50%)";
+let escapeCount = 0;
+let phase = 1; // 1=逃げる 2=隠れる 3=分裂
+const btn = document.getElementById("mainBtn");
 
-  btn.addEventListener("mouseenter", moveButton);
-  btn.addEventListener("touchstart", moveButton); 
+function randomPos(el) {
+  const x = Math.random() * (innerWidth - el.offsetWidth);
+  const y = Math.random() * (innerHeight - el.offsetHeight);
+  el.style.left = x + "px";
+  el.style.top  = y + "px";
+}
 
-  function moveButton() {
-    const maxX = window.innerWidth - btn.offsetWidth;
-    const maxY = window.innerHeight - btn.offsetHeight;
+// 初期位置
+randomPos(btn);
 
-    const x = Math.random() * maxX;
-    const y = Math.random() * maxY;
+// ========= フェーズ1：100回逃げる =========
+function escape() {
+  if (phase !== 1) return;
 
-    btn.style.left = x + "px";
-    btn.style.top = y + "px";
-    btn.style.transform = "translate(0, 0)";
+  escapeCount++;
+  randomPos(btn);
+
+  if (escapeCount >= 100) {
+    phase = 2;
+    hidePhase();
   }
+}
 
-  
-  btn.addEventListener("click", () => {
-    window.location.href = "https://jnr2ljtjnl2rsnsv.github.io/Jaj/AP.html";
-  });
+btn.addEventListener("mouseenter", escape);
+btn.addEventListener("touchstart", escape);
+
+// ========= フェーズ2：透明で隠れる =========
+function hidePhase() {
+  btn.style.opacity = "0.1";
+  randomPos(btn);
+
+  setTimeout(() => {
+    btn.remove();
+    splitPhase();
+  }, 1500);
+}
+
+// ========= フェーズ3：12分裂 =========
+function splitPhase() {
+  const correctIndex = Math.floor(Math.random() * 12);
+
+  for (let i = 0; i < 36; i++) {
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.textContent = "スタート";
+    randomPos(b);
+
+    if (i !== correctIndex) {
+      b.style.opacity = "0.5";
+      b.addEventListener("mouseenter", () => {
+        b.remove();
+      });
+    } else {
+      b.addEventListener("click", () => {
+        window.location.href = TARGET_URL;
+      });
+    }
+
+    document.body.appendChild(b);
+  }
+}
 </script>
 
 </body>
