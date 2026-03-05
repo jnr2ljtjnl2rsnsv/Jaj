@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>⚠️ SYSTEM ALERT ⚠️</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: #000;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+      cursor: none;
+    }
+    #matrix {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+    .alert-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(20, 20, 20, 0.9);
+      border: 3px solid #f00;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 0 40px #f00;
+      z-index: 9999;
+      width: 90%;
+      max-width: 700px;
+    }
+    h1 {
+      color: #ff0044;
+      text-shadow: 0 0 10px #f00;
+      margin: 0 0 20px;
+      font-size: 3.2rem;
+    }
+    .blink {
+      animation: blink 1.2s infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0.3; }
+    }
+    .fake-btn {
+      background: #222;
+      color: #0f0;
+      border: 2px solid #0f0;
+      padding: 12px 30px;
+      font-size: 1.3rem;
+      margin: 20px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .fake-btn:hover {
+      background: #0f0;
+      color: #000;
+      box-shadow: 0 0 20px #0f0;
+    }
+    #taskmgr {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      color: #888;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="alert-box">
+  <h1 class="blink">⚠️ 重大なウイルス検出！ ⚠️</h1>
+  <p style="font-size:1.4rem; color:#ff8800; line-height:1.6;">
+    TROJAN-RANSOM.WIN32.XPANDEMIC が検出されました。<br>
+    システムファイルが暗号化されています。<br><br>
+    
+    <span style="color:#f00; font-size:1.8rem; font-weight:bold;">
+      24時間以内に身代金 0.035 BTC を送金しない場合、<br>
+      すべてのデータが永久に失われます。
+    </span>
+  </p>
+
+  <p style="margin:40px 0; color:#0f8;">
+    推奨アクション：<br>
+    1. すぐに電源を切る<br>
+    2. 専門家に相談する<br>
+    3. 身代金を払う（非推奨）
+  </p>
+
+  <button class="fake-btn" onclick="alert('303\n\n権限不足')">ウイルスを駆除する</button>
+  <button class="fake-btn" onclick="document.body.innerHTML='<h1 style=\'color:#f00;font-size:8vw;text-align:center;margin-top:30vh;\'>PCはもう死にました</h1>'">今すぐフォーマット</button>
+</div>
+
+<div id="taskmgr">タスク マネージャー を開く… 失敗しました（権限がありません）</div>
+
+<script>
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+//const chars内にマトリックスにしたい文字リストを追加
+const chars = '   ';
+const fontSize = 16;
+const columns = canvas.width / fontSize;
+
+const drops = Array(Math.floor(columns)).fill(1);
+
+function draw() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.fillStyle = '#0f0';
+  ctx.font = fontSize + 'px monospace';
+
+  for(let i = 0; i < drops.length; i++) {
+    const text = chars.charAt(Math.floor(Math.random() * chars.length));
+    const x = i * fontSize;
+    const y = drops[i] * fontSize;
+    
+    ctx.fillText(text, x, y);
+    
+    if(y >= canvas.height && Math.random() > 0.975)
+      drops[i] = 0;
+    
+    drops[i]++;
+  }
+}
+
+setInterval(draw, 45);
+
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+    e.preventDefault();
+  }
+});
+
+
+let moveCount = 0;
+window.addEventListener('mousemove', () => {
+  moveCount++;
+  if(moveCount > 30) {
+  }
+});
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
+</body>
+</html>
