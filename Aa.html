@@ -48,6 +48,7 @@ h1{margin:0 0 10px;font-size:1.2rem;letter-spacing:.08em;color:#9ef}
       padding:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);margin-top:12px">
       <div class="muted small" style="margin-bottom:6px">取得情報（自動）</div>
       <ul id="infoList" style="list-style:none;padding:0;margin:0;line-height:1.7">
+        <li>IPアドレス: <b id="ip">取得中…</b></li>
         <li>位置情報: <b id="geo">取得中…</b></li>
         <li>ログID: <b id="logid">—</b></li>
         <li>端末: <b id="ua">—</b></li>
@@ -69,15 +70,16 @@ let LOG_ID = null;
 const prog = document.getElementById('prog');
 const ov = document.getElementById('ov');
 
-const geoEl = document.getElementById('geo');
-const logid = document.getElementById('logid');
-const ua = document.getElementById('ua');
-const os = document.getElementById('os');
-const scr = document.getElementById('scr');
-const lang = document.getElementById('lang');
-const tz = document.getElementById('tz');
-const stay = document.getElementById('stay');
-const score = document.getElementById('score');
+const ipEl    = document.getElementById('ip');
+const geoEl   = document.getElementById('geo');
+const logid   = document.getElementById('logid');
+const ua      = document.getElementById('ua');
+const os      = document.getElementById('os');
+const scr     = document.getElementById('scr');
+const lang    = document.getElementById('lang');
+const tz      = document.getElementById('tz');
+const stay    = document.getElementById('stay');
+const score   = document.getElementById('score');
 
 let percent = 0;
 let startTime = Date.now();
@@ -109,16 +111,47 @@ function finish(){
   },600);
 }
 
+function getClientIP() {
+  // Cloudflare系プロキシがよく使うヘッダー順
+  const headers = [
+    'CF-Connecting-IP',
+    'True-Client-IP',
+    'X-Real-IP',
+    'X-Forwarded-For'
+  ];
+
+  for (const h of headers) {
+    const value = headers[h.toLowerCase()];
+    if (value) {
+      // X-Forwarded-Forの場合は最初のカンマ区切りが本来のクライアントIPであることが多い
+      if (h === 'X-Forwarded-For') {
+        return value.split(',')[0].trim();
+      }
+      return value;
+    }
+  }
+
+  // 最終手段（ほぼ取れないが一応）
+  return '取得失敗';
+}
+
+// メイン処理
 (() => {
   const payload = {
     ua: navigator.userAgent,
     os: (/(Windows|Mac|Linux|Android|iPhone|iPad)/.exec(navigator.userAgent)||['Unknown'])[0],
-    screen: `${screen.width}×${screen.height}`,
+    screen: `\( {screen.width}× \){screen.height}`,
     lang: navigator.language,
     tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
     score: 80 - Math.floor(Math.random()*20),
-    geo: '取得中…'
+    geo: '取得中…',
+    ip: '取得中…'
   };
+
+  // IPを先にクライアント側で推測表示（参考値）
+  const clientIP = getClientIP();
+  ipEl.textContent = clientIP;
+  payload.ip = clientIP;
 
   ua.textContent = payload.ua;
   os.textContent = payload.os;
@@ -127,44 +160,53 @@ function finish(){
   tz.textContent = payload.tz;
   score.textContent = payload.score;
 
-  advance(40);
+  advance(30);
 
-  fetch(`${API}/log`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
+  fetch(`${API}/log`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
   })
-  .then(r=>r.json())
-  .then(j=>{
-    LOG_ID=j.id;
-    logid.textContent=LOG_ID;
-    advance(70);
-  })
-  .catch(()=>advance(70));
+  .then(r => r.json())
+  .then(j => {
+    LOG_ID = j.id;
+    logid.textContent = LOG_ID;
+    advance(60);
 
-  if(navigator.geolocation){
+    // サーバー側で確定したIPを上書き表示したい場合はここで再度取得も可能
+    // ただし多くの場合CF-Connecting-IPが正しいので省略可
+  })
+  .catch(() => {
+    advance(60);
+  });
+
+  // 位置情報
+  if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      pos=>{
-        const g=`${pos.coords.latitude.toFixed(5)},${pos.coords.longitude.toFixed(5)}`;
-        geoEl.textContent=g;
-        advance(90);
+      pos => {
+        const g = `\( {pos.coords.latitude.toFixed(5)}, \){pos.coords.longitude.toFixed(5)}`;
+        geoEl.textContent = g;
+        payload.geo = g;
+        advance(85);
 
-        fetch(`${API}/log/geo`,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({id:LOG_ID,geo:g})
+        // 位置情報更新
+        fetch(`${API}/log/geo`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: LOG_ID, geo: g, ip: clientIP })
         }).finally(finish);
       },
-      ()=>{
-        geoEl.textContent='拒否 / 不可';
-        advance(90);
-        setTimeout(finish,800);
+      () => {
+        geoEl.textContent = '拒否 / 不可';
+        advance(85);
+        setTimeout(finish, 800);
       },
-      { timeout:1500, enableHighAccuracy:false }
+      { timeout: 1500, enableHighAccuracy: false }
     );
   } else {
-    geoEl.textContent='非対応';
-    setTimeout(finish,1200);
+    geoEl.textContent = '非対応';
+    advance(85);
+    setTimeout(finish, 1200);
   }
 })();
 </script>
