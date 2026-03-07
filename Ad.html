@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>セキュリティ警告 - コンピューターが危険な状態です</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "メイリオ", Meiryo, sans-serif;
+      background: #000;
+      color: #fff;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+    .container {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, #001144, #000022);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .alert-box {
+      background: rgba(255, 0, 0, 0.85);
+      border: 4px solid #ff4444;
+      border-radius: 12px;
+      padding: 30px 40px;
+      max-width: 720px;
+      box-shadow: 0 0 40px rgba(255,0,0,0.6);
+    }
+    h1 {
+      font-size: 2.4rem;
+      margin: 0 0 20px;
+      text-shadow: 0 0 10px #fff;
+    }
+    .warning {
+      font-size: 1.5rem;
+      line-height: 1.5;
+      margin: 20px 0;
+      color: #ffeb3b;
+    }
+    .virus-list {
+      background: rgba(0,0,0,0.6);
+      padding: 20px;
+      border-radius: 8px;
+      margin: 25px 0;
+      text-align: left;
+      max-width: 580px;
+    }
+    .virus-list li {
+      margin: 12px 0;
+      font-size: 1.3rem;
+    }
+    .countdown {
+      font-size: 3.2rem;
+      font-weight: bold;
+      color: #ff4444;
+      margin: 30px 0 10px;
+      text-shadow: 0 0 15px #ff0000;
+    }
+    .btn-fake {
+      background: #ff2d2d;
+      color: white;
+      font-size: 1.6rem;
+      padding: 18px 60px;
+      border: none;
+      border-radius: 8px;
+      margin: 20px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #aa0000;
+      transition: all 0.1s;
+    }
+    .btn-fake:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #880000;
+    }
+    .disabled {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    .small {
+      font-size: 1.1rem;
+      color: #ccc;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="alert-box">
+    <h1>【重要】セキュリティ警告</h1>
+    
+    <div class="warning">
+      あなたのコンピューターが危険な状態です！<br>
+      ウイルス・スパイウェア・ランサムウェアによる深刻な感染が確認されました。
+    </div>
+
+    <div class="virus-list">
+      <ul>
+        <li>✔ Win32.Trojan.Agent.Gen (検出：3分前)</li>
+        <li>✔ JS:Redirector-B [Trj] (検出：現在進行中)</li>
+        <li>✔ Ransomware.LockBit.encrypted (ファイル暗号化中)</li>
+        <li>✔ Spyware.KeyLogger.Xtreme (個人情報窃取中)</li>
+      </ul>
+    </div>
+
+    <div class="countdown" id="timer">残り時間：03:00</div>
+    <div>このまま操作を続けると個人情報が盗まれ、<br>銀行口座・クレジットカードが不正利用されます</div>
+
+    <button class="btn-fake" id="fakeButton">今すぐ修復する（無料診断）</button>
+    <button class="btn-fake disabled" style="background:#555;">修復をキャンセル（危険）</button>
+
+    <div class="small">
+      Microsoft認定パートナー / 日本サイバーセキュリティ機構 公認
+    </div>
+  </div>
+</div>
+
+<script>
+  let timeLeft = 180;
+  const timerEl = document.getElementById("timer");
+  
+  const countdown = setInterval(() => {
+    timeLeft--;
+    const min = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const sec = (timeLeft % 60).toString().padStart(2, '0');
+    timerEl.textContent = `残り時間：\( {min}: \){sec}`;
+    
+    if (timeLeft <= 0) {
+      clearInterval(countdown);
+      timerEl.textContent = "時間切れ！データが暗号化されました";
+      timerEl.style.color = "#0f0";
+    }
+  }, 1000);
+
+  document.getElementById("fakeButton").addEventListener("click", () => {
+    alert("接続中…");
+    setTimeout(() => {
+      alert("エラー：有料サポートプランへの加入が必要です\n\n料金：初回78,000円（税込）\n※今すぐ決済しないとファイルが永久に復元不可になります");
+    }, 1800);
+  });
+
+  document.addEventListener("contextmenu", e => e.preventDefault());
+  document.addEventListener("keydown", e => {
+    if (e.ctrlKey && (e.key === "u" || e.key === "s" || e.key === "i")) {
+      e.preventDefault();
+    }
+    if (e.key === "F12") e.preventDefault();
+  });
+</script>
+
+</body>
+</html>
