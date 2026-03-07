@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>IP確認</title>
+</head>
+<body>
+
+<h1>あなたのIPアドレス</h1>
+<p id="ip">取得中...</p>
+
+<script>
+fetch("https://api.ipify.org?format=json")
+.then(res => res.json())
+.then(data => {
+  document.getElementById("ip").textContent = data.ip;
+});
+</script>
+
+</body>
+</html>
