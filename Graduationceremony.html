@@ -2,43 +2,47 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>卒業掲示板</title>
+<title>卒業おめでとう</title>
 
 <style>
 body{
-font-family:sans-serif;
-text-align:center;
 margin:0;
-background:white;
-overflow-x:hidden;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+font-family:sans-serif;
+background:linear-gradient(135deg,#ffd6e7,#ffffff,#d6f0ff);
+overflow:hidden;
+text-align:center;
 }
 
-input,textarea{
-width:80%;
-max-width:500px;
-padding:10px;
-margin:5px;
+h1{
+font-size:60px;
+color:#333;
+margin:0;
 }
 
-.post{
-border:1px solid #ddd;
-margin:10px auto;
-padding:10px;
-width:80%;
-max-width:600px;
-border-radius:10px;
-background:#fafafa;
+p{
+font-size:22px;
+}
+
+#count{
+font-size:28px;
+color:#ff4081;
 }
 
 .sakura{
 position:fixed;
-top:-10px;
+top:-20px;
+font-size:24px;
 animation:fall linear forwards;
 }
 
 @keyframes fall{
 to{
-transform:translateY(100vh);
+transform:translateY(110vh) rotate(360deg);
 }
 }
 </style>
@@ -46,63 +50,28 @@ transform:translateY(100vh);
 
 <body>
 
-<h1>🌸卒業おめでとう掲示板🎓</h1>
+<h1>🎓 卒業おめでとう！ 🌸</h1>
+<p>みんな今まで本当にありがとう</p>
+<p>1分後にメッセージページに移動します</p>
 
-<input id="name" placeholder="名前"><br>
-<textarea id="message" placeholder="メッセージ"></textarea><br>
-
-<button onclick="post()">投稿</button>
-
-<div id="board"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<div id="count">60</div>
 
 <script>
 
-const supabase = window.supabase.createClient(
-"https://ovuqdbszcddixladgmuh.supabase.co",
-"sb_publishable_TY7I0SfKJuv_PNAj8o-zKg_OjhLFzwQ"
-)
+let time=60
 
-async function load(){
+const timer=setInterval(()=>{
 
-const {data}=await supabase
-.from("posts")
-.select("*")
-.order("created_at",{ascending:false})
+time--
+document.getElementById("count").innerText=time
 
-const board=document.getElementById("board")
-board.innerHTML=""
+if(time<=0){
+clearInterval(timer)
 
-data.forEach(p=>{
-board.innerHTML+=`
-<div class="post">
-<b>${p.name}</b><br>
-${p.message}
-</div>
-`
-})
-
+window.location.href="https://line.me/ti/p/7fNxU4_uWa"
 }
 
-async function post(){
-
-const name=document.getElementById("name").value
-const message=document.getElementById("message").value
-
-await supabase.from("posts").insert([
-{name,message}
-])
-
-document.getElementById("message").value=""
-
-load()
-
-}
-
-load()
-
-setInterval(load,3000)
+},1000)
 
 function sakura(){
 
@@ -119,7 +88,7 @@ setTimeout(()=>s.remove(),10000)
 
 }
 
-setInterval(sakura,300)
+setInterval(sakura,200)
 
 </script>
 
