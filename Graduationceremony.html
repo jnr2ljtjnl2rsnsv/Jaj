@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>卒業掲示板</title>
+
+<style>
+body{
+font-family:sans-serif;
+text-align:center;
+margin:0;
+background:white;
+overflow-x:hidden;
+}
+
+input,textarea{
+width:80%;
+max-width:500px;
+padding:10px;
+margin:5px;
+}
+
+.post{
+border:1px solid #ddd;
+margin:10px auto;
+padding:10px;
+width:80%;
+max-width:600px;
+border-radius:10px;
+background:#fafafa;
+}
+
+.sakura{
+position:fixed;
+top:-10px;
+animation:fall linear forwards;
+}
+
+@keyframes fall{
+to{
+transform:translateY(100vh);
+}
+}
+</style>
+</head>
+
+<body>
+
+<h1>🌸卒業おめでとう掲示板🎓</h1>
+
+<input id="name" placeholder="名前"><br>
+<textarea id="message" placeholder="メッセージ"></textarea><br>
+
+<button onclick="post()">投稿</button>
+
+<div id="board"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+
+const supabase = window.supabase.createClient(
+"https://ovuqdbszcddixladgmuh.supabase.co",
+"sb_publishable_TY7I0SfKJuv_PNAj8o-zKg_OjhLFzwQ"
+)
+
+async function load(){
+
+const {data}=await supabase
+.from("posts")
+.select("*")
+.order("created_at",{ascending:false})
+
+const board=document.getElementById("board")
+board.innerHTML=""
+
+data.forEach(p=>{
+board.innerHTML+=`
+<div class="post">
+<b>${p.name}</b><br>
+${p.message}
+</div>
+`
+})
+
+}
+
+async function post(){
+
+const name=document.getElementById("name").value
+const message=document.getElementById("message").value
+
+await supabase.from("posts").insert([
+{name,message}
+])
+
+document.getElementById("message").value=""
+
+load()
+
+}
+
+load()
+
+setInterval(load,3000)
+
+function sakura(){
+
+const s=document.createElement("div")
+s.className="sakura"
+s.innerHTML="🌸"
+
+s.style.left=Math.random()*100+"vw"
+s.style.animationDuration=(Math.random()*5+5)+"s"
+
+document.body.appendChild(s)
+
+setTimeout(()=>s.remove(),10000)
+
+}
+
+setInterval(sakura,300)
+
+</script>
+
+</body>
+</html>
